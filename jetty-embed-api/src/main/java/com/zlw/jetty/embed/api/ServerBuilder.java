@@ -182,7 +182,8 @@ public class ServerBuilder
             //检查端口
             String cmd = "netstat -ntlp | grep " + Integer.toString(port);
             logger.warn("debug:netstat cmd {}", cmd);
-            Process netstatProcess = Runtime.getRuntime().exec(cmd);
+            String[] cmdArray = {"/bin/sh", "-c", cmd};
+            Process netstatProcess = Runtime.getRuntime().exec(cmdArray);
             netstatProcess.waitFor();
             InputStream in = netstatProcess.getInputStream();
             BufferedReader read = new BufferedReader(new InputStreamReader(in));
