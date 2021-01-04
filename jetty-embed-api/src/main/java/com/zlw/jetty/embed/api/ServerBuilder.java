@@ -151,7 +151,9 @@ public class ServerBuilder
     {
         try {
             //检查端口
-            Process lsofProcess = Runtime.getRuntime().exec("lsof -i:" + Integer.toString(port));
+            String cmd = "lsof -i:" + Integer.toString(port);
+            logger.info("检测端口:{}", cmd);
+            Process lsofProcess = Runtime.getRuntime().exec(cmd);
             lsofProcess.waitFor();
             InputStream in = lsofProcess.getInputStream();
             BufferedReader read = new BufferedReader(new InputStreamReader(in));
@@ -181,7 +183,7 @@ public class ServerBuilder
         try {
             //检查端口
             String cmd = "netstat -ntlp | grep " + Integer.toString(port);
-            logger.warn("debug:netstat cmd {}", cmd);
+            logger.info("检测端口:{}", cmd);
             String[] cmdArray = {"/bin/sh", "-c", cmd};
             Process netstatProcess = Runtime.getRuntime().exec(cmdArray);
             netstatProcess.waitFor();
@@ -190,7 +192,6 @@ public class ServerBuilder
             String temp = read.readLine();
             String last = "";
             while (temp != null) {
-                logger.warn("debug:netstat result {}", temp);
                 last = temp;
                 temp = read.readLine();
             }
@@ -199,7 +200,10 @@ public class ServerBuilder
             if (fieldArray.length > 5) {
                 logger.warn("端口已被占用:{}", last);
                 //第5个为pid
-                String pid = fieldArray[4];
+                String pid = fieldArray[57];
+                for (int i = 0; i < fieldArray.length; i++) {
+                    logger.warn("{}:{}", i, fieldArray[i]);
+                }
                 //杀死该进程
 //                Process killProcess = Runtime.getRuntime().exec("kill -9 " + pid);
 //                killProcess.waitFor();
