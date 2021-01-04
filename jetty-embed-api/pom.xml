@@ -8,12 +8,6 @@
     </parent>
     <artifactId>jetty-embed-api</artifactId>
     <packaging>jar</packaging>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>http://139.224.54.3:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
