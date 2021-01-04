@@ -137,6 +137,7 @@ public class ServerBuilder
     {
         //获取系统版本
         String osName = System.getProperty("os.name").toLowerCase();
+        logger.info("当前系统:{}", osName);
         if (osName.startsWith("linux")) {
             //linux
             checkAndKillPortInLinux();
