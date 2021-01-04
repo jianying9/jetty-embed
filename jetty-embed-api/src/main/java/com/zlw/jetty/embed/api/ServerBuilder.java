@@ -139,6 +139,7 @@ public class ServerBuilder
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.startsWith("linux")) {
             //linux
+            checkAndKillPortInLinux();
         } else if (osName.startsWith("mac")) {
             //mac
             checkAndKillPortInMac();
@@ -171,6 +172,36 @@ public class ServerBuilder
             }
         } catch (IOException | InterruptedException ex) {
             this.logger.warn("mac端口检测异常", ex);
+        }
+    }
+
+    private void checkAndKillPortInLinux()
+    {
+        try {
+            //检查端口
+            Process netstatProcess = Runtime.getRuntime().exec("netstat -ntlp | grep " + Integer.toString(port));
+            netstatProcess.waitFor();
+            InputStream in = netstatProcess.getInputStream();
+            BufferedReader read = new BufferedReader(new InputStreamReader(in));
+            String temp = read.readLine();
+            String last = "";
+            while (temp != null) {
+                last = temp;
+                temp = read.readLine();
+            }
+            String[] fieldArray = last.split(" ");
+            logger.warn("debug:netstat length {}", fieldArray.length);
+            if (fieldArray.length > 5) {
+                logger.warn("端口已被占用:{}", last);
+                //第5个为pid
+                String pid = fieldArray[4];
+                //杀死该进程
+//                Process killProcess = Runtime.getRuntime().exec("kill -9 " + pid);
+//                killProcess.waitFor();
+//                logger.warn("杀死进程:{}", pid);
+            }
+        } catch (IOException | InterruptedException ex) {
+            this.logger.warn("linux端口检测异常", ex);
         }
     }
 

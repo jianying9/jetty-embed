@@ -71,7 +71,7 @@
                                     <mainClass>com.zlw.jetty.embed.app.JettyStart</mainClass>
                                 </manifest>
                                 <manifestEntries>
-                                    <Project-Version>1.0-SNAPSHOT</Project-Version>
+                                    <Project-Version>${project.version}</Project-Version>
                                 </manifestEntries>
                             </archive>
                         </configuration>
