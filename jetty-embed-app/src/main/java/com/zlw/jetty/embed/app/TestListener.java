@@ -14,7 +14,7 @@ public final class TestListener implements ServletContextListener
     @Override
     public void contextInitialized(ServletContextEvent ctxe)
     {
-        TestHttpServlet.state = "ok";
+        InfoHttpServlet.state = "ok";
     }
 
     @Override

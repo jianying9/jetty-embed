@@ -8,14 +8,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Action调度控制器
  *
- * @author sean
+ *
+ * @author jianying9
  */
-@WebServlet(name = "TestHttp", urlPatterns = "/api/*")
-public final class TestHttpServlet extends HttpServlet
+@WebServlet(urlPatterns = "/log/debug/*")
+public final class DebugHttpServlet extends HttpServlet
 {
 
     private static final long serialVersionUID = 1L;
@@ -34,7 +36,9 @@ public final class TestHttpServlet extends HttpServlet
         if (origin != null && !origin.isEmpty()) {
             response.addHeader("Access-Control-Allow-Origin", origin);
         }
-
+        //
+        Logger logger = LogManager.getLogger(DebugHttpServlet.class);
+        logger.debug("level:{}", "debug");
         // 写入客户端
         JSONObject result = new JSONObject();
         result.put("sate", state);

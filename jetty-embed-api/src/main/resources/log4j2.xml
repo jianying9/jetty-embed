@@ -19,10 +19,9 @@
         
         <!--输出info日志到文件，filePattern旧日志另存文件名-->
         <RollingFile name="RollingInfoFile" fileName="${LOG_FILE_PATH}/info.log"
-                     filePattern="${LOG_FILE_PATH}/$${date:yyyyMM}/info-%d{yyyyMMdd}-%i.log.gz">
+                     filePattern="${LOG_FILE_PATH}/$${date:yyyyMM}/info-%d{yyyyMMdd}-%i.log">
             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
             <Filters>
-                <ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
 
@@ -35,34 +34,14 @@
                 <!--当系统重启/日期更新/超过100M将会覆盖文件-->
                 <OnStartupTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="100 MB"/>
-                <TimeBasedTriggeringPolicy/>
-            </Policies>
-        </RollingFile>
-
-        <!--输出警告日志到文件-->
-        <RollingFile name="RollingWarnFile" fileName="${LOG_FILE_PATH}/warn.log"
-                     filePattern="${LOG_FILE_PATH}/$${date:yyyyMM}/warn-%d{yyyyMMdd}-%i.log.gz">
-            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
-            <Filters>
-                <ThresholdFilter level="error" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-
-            <PatternLayout>
-                <pattern>${PATTERN_FORMAT}</pattern>
-            </PatternLayout>
-
-            <Policies>
-                <!-- rollover on startup, daily and when the file reaches 10 MegaBytes -->
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="100 MB"/>
-                <TimeBasedTriggeringPolicy/>
+                <!-- TimeBasedTriggeringPolicy :时间滚动策略,默认0点小时产生新的文件,interval="6" : 自定义文件滚动时间间隔,每隔6小时产生新文件, modulate="true" : 产生文件是否以0点偏移时间,即6点,12点,18点,0点-->
+                <TimeBasedTriggeringPolicy interval="6" modulate="true"/>
             </Policies>
         </RollingFile>
 
         <!--输出错误日志到文件-->
         <RollingFile name="RollingErrorFile" fileName="${LOG_FILE_PATH}/error.log"
-                     filePattern="${LOG_FILE_PATH}/$${date:yyyyMM}/error-%d{yyyyMMdd}-%i.log.gz">
+                     filePattern="${LOG_FILE_PATH}/$${date:yyyyMM}/error-%d{yyyyMMdd}-%i.log">
             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
             <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
 
@@ -74,7 +53,8 @@
                 <!-- rollover on startup, daily and when the file reaches 10 MegaBytes -->
                 <OnStartupTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="100 MB"/>
-                <TimeBasedTriggeringPolicy/>
+                <!-- TimeBasedTriggeringPolicy :时间滚动策略,默认0点小时产生新的文件,interval="6" : 自定义文件滚动时间间隔,每隔6小时产生新文件, modulate="true" : 产生文件是否以0点偏移时间,即6点,12点,18点,0点-->
+                <TimeBasedTriggeringPolicy interval="6" modulate="true"/>
             </Policies>
         </RollingFile>
     </Appenders>
@@ -88,7 +68,6 @@
         <Root level="ALL">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingInfoFile"/>
-            <AppenderRef ref="RollingWarnFile"/>
             <AppenderRef ref="RollingErrorFile"/>
         </Root>
     </Loggers>

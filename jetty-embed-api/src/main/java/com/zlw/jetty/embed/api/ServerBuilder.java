@@ -5,15 +5,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.servlet.Servlet;
+import javax.servlet.annotation.WebServlet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -28,8 +29,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -52,7 +51,7 @@ public class ServerBuilder
 
     private final List<EventListener> eventListenerList = new ArrayList();
 
-    private final Map<String, Class<? extends Servlet>> servletMap = new HashMap();
+    private final List<Class<? extends Servlet>> servletList = new ArrayList();
 
     /**
      * 实例化
@@ -76,7 +75,7 @@ public class ServerBuilder
         this.appPath = basePath;
         //设置环境变量,用于jetty的log4j2日志输出
         System.setProperty("AppPath", this.appPath);
-        this.logger = Log.getLogger(ServerBuilder.class);
+        this.logger = LogManager.getLogger(ServerBuilder.class);
         logger.info("app目录:{}", this.appPath);
     }
 
@@ -124,12 +123,11 @@ public class ServerBuilder
      * 添加servlet
      *
      * @param servlet 类
-     * @param pathSpec path
      * @return
      */
-    public ServerBuilder addServlet(Class<? extends Servlet> servlet, String pathSpec)
+    public ServerBuilder addServlet(Class<? extends Servlet> servlet)
     {
-        this.servletMap.put(pathSpec, servlet);
+        this.servletList.add(servlet);
         return this;
     }
 
@@ -137,7 +135,7 @@ public class ServerBuilder
     {
         //获取系统版本
         String osName = System.getProperty("os.name").toLowerCase();
-        logger.info("当前系统:{}", osName);
+        logger.warn("当前系统:{}", osName);
         if (osName.startsWith("linux")) {
             //linux
             checkAndKillPortInLinux();
@@ -175,7 +173,7 @@ public class ServerBuilder
                 logger.warn("杀死进程:{}", cmd);
             }
         } catch (IOException | InterruptedException ex) {
-            this.logger.warn("mac端口检测异常", ex);
+            this.logger.error("mac端口检测异常", ex);
         }
     }
 
@@ -209,7 +207,7 @@ public class ServerBuilder
                 logger.warn("杀死进程:{}", cmd);
             }
         } catch (IOException | InterruptedException ex) {
-            this.logger.warn("linux端口检测异常", ex);
+            this.logger.error("linux端口检测异常", ex);
         }
     }
 
@@ -236,8 +234,15 @@ public class ServerBuilder
             defaultAppContext.addEventListener(eventListener);
         }
         //添加servlet
-        for (Entry<String, Class<? extends Servlet>> entry : this.servletMap.entrySet()) {
-            defaultAppContext.addServlet(entry.getValue(), entry.getKey());
+        for (Class<? extends Servlet> servlet : this.servletList) {
+            String pathSpec = "/" + servlet.getName();
+            if (servlet.isAnnotationPresent(WebServlet.class)) {
+                WebServlet webServlet = servlet.getAnnotation(WebServlet.class);
+                if (webServlet.urlPatterns().length > 0) {
+                    pathSpec = webServlet.urlPatterns()[0];
+                }
+            }
+            defaultAppContext.addServlet(servlet, pathSpec);
         }
         server.setHandler(defaultAppContext);
         //初始化日志文件web服务
@@ -284,8 +289,11 @@ public class ServerBuilder
             //启动服务
             server.start();
         } catch (Exception ex) {
-            this.logger.warn("server启动异常", ex);
+            this.logger.error("server启动异常", ex);
         }
+        String name = ManagementFactory.getRuntimeMXBean().getName();
+        String pid = name.split("@")[0];
+        this.logger.info("启动成功:{}", pid);
         //修改http响应头Server信息
 //        HttpGenerator.setJettyVersion("Zlw(3.3.3)");
     }
