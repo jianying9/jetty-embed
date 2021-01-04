@@ -189,7 +189,7 @@ public class ServerBuilder
             String temp = read.readLine();
             String last = "";
             while (temp != null) {
-                logger.warn("debug:netstat result {}", cmd);
+                logger.warn("debug:netstat result {}", temp);
                 last = temp;
                 temp = read.readLine();
             }
