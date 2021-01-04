@@ -180,13 +180,16 @@ public class ServerBuilder
     {
         try {
             //检查端口
-            Process netstatProcess = Runtime.getRuntime().exec("netstat -ntlp | grep " + Integer.toString(port));
+            String cmd = "netstat -ntlp | grep " + Integer.toString(port);
+            logger.warn("debug:netstat cmd {}", cmd);
+            Process netstatProcess = Runtime.getRuntime().exec(cmd);
             netstatProcess.waitFor();
             InputStream in = netstatProcess.getInputStream();
             BufferedReader read = new BufferedReader(new InputStreamReader(in));
             String temp = read.readLine();
             String last = "";
             while (temp != null) {
+                logger.warn("debug:netstat result {}", cmd);
                 last = temp;
                 temp = read.readLine();
             }
