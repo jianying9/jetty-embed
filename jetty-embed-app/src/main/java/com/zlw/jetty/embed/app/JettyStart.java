@@ -12,6 +12,9 @@ public class JettyStart
 
     public static void main(String[] args)
     {
+        String s = "32027/java";
+        s = s.replaceAll("\\D", "");
+        System.out.println(s);
         int port = 8080;
         String appName = "base";
         ServerBuilder serverBuilder = new ServerBuilder(appName, port);

@@ -169,9 +169,10 @@ public class ServerBuilder
                 //第5个为pid
                 String pid = fieldArray[4];
                 //杀死该进程
-                Process killProcess = Runtime.getRuntime().exec("kill -9 " + pid);
+                cmd = "kill -9 " + pid;
+                Process killProcess = Runtime.getRuntime().exec(cmd);
                 killProcess.waitFor();
-                logger.warn("杀死进程:{}", pid);
+                logger.warn("杀死进程:{}", cmd);
             }
         } catch (IOException | InterruptedException ex) {
             this.logger.warn("mac端口检测异常", ex);
@@ -196,18 +197,16 @@ public class ServerBuilder
                 temp = read.readLine();
             }
             String[] fieldArray = last.split(" ");
-            logger.warn("debug:netstat length {}", fieldArray.length);
             if (fieldArray.length > 5) {
                 logger.warn("端口已被占用:{}", last);
                 //第5个为pid
                 String pid = fieldArray[57];
-                for (int i = 0; i < fieldArray.length; i++) {
-                    logger.warn("{}:{}", i, fieldArray[i]);
-                }
+                pid = pid.replaceAll("\\D", "");
                 //杀死该进程
-//                Process killProcess = Runtime.getRuntime().exec("kill -9 " + pid);
-//                killProcess.waitFor();
-//                logger.warn("杀死进程:{}", pid);
+                cmd = "kill -9 " + pid;
+                Process killProcess = Runtime.getRuntime().exec(cmd);
+                killProcess.waitFor();
+                logger.warn("杀死进程:{}", cmd);
             }
         } catch (IOException | InterruptedException ex) {
             this.logger.warn("linux端口检测异常", ex);
